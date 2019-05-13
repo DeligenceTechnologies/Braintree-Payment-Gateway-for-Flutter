@@ -1,8 +1,8 @@
 name: braintree_payment
-description: A new flutter plugin project.
+description: A flutter plugin for the Bar
 version: 0.0.1
-author:
-homepage:
+author: Deligence <flutter@deligence.com>
+homepage: https://github.com/DeligenceTechnologies/Braintree-Payment-Gateway-for-Flutter
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
