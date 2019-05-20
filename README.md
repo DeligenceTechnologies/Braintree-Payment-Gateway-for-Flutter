@@ -36,12 +36,14 @@ import 'package:braintree_payment/braintree_payment.dart';
 
 ```dart
 BraintreePayment braintreePayment = new BraintreePayment();
-var data = await braintreePayment.showDropIn(nonce: clientNonce);
+var data = await braintreePayment.showDropIn(
+        nonce: clientNonce, amount: "2.0", enableGooglePay: true);
 ```
 
 `Step 4`- Variable data will have the payment nonce. Send the paymne nonce to the server for further processing of the payment:
 ```dart
-var data = await braintreePayment.showDropIn(nonce: clientNonce);
+var data = await braintreePayment.showDropIn(
+        nonce: clientNonce, amount: "2.0", enableGooglePay: true);
 print("Response of the payment $data");
 // In case of success
 //{"status":"success","message":"Payment successful. Send the payment nonce to the server for the further processing.":"paymentNonce":"jdsfhedbyq772_34dfsf"}

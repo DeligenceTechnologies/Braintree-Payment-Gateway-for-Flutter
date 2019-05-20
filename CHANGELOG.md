@@ -7,3 +7,10 @@ Migrate to Android X.
 
 ## 0.0.3
 Updated Documentation
+
+## 1.0.0
+Google Pay support
+
+
+## 1.0.1
+Fixed bug in Boolean value 

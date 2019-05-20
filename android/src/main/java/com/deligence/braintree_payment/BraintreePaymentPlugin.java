@@ -28,7 +28,9 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
   private Context context;
   Result activeResult;
   private static final int REQUEST_CODE = 0x1337;
-  String clientToken;
+  String clientToken="";
+  String amount="";
+  boolean enableGooglePay;
   HashMap<String, String> map = new HashMap<String, String>();
   public BraintreePaymentPlugin(Registrar registrar) {
       activity = registrar.activity();
@@ -46,6 +48,8 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     if (call.method.equals("showDropIn")) {
       this.activeResult=result;
       this.clientToken=call.argument("clientToken");
+      this.amount=call.argument("amount");
+      this.enableGooglePay=call.argument("enableGooglePay");
       payNow();
     } else {
       result.notImplemented();
@@ -54,14 +58,16 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
 
     void payNow(){
           DropInRequest dropInRequest = new DropInRequest().clientToken(clientToken);
-          enableGooglePay(dropInRequest);
+          if(enableGooglePay){
+            enableGooglePay(dropInRequest);
+          }
           activity.startActivityForResult(dropInRequest.getIntent(context), REQUEST_CODE);
       }
 
   private void enableGooglePay(DropInRequest dropInRequest){
      GooglePaymentRequest googlePaymentRequest = new GooglePaymentRequest()
                 .transactionInfo(TransactionInfo.newBuilder()
-                        .setTotalPrice("1.00")
+                        .setTotalPrice(amount)
                         .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
                         .setCurrencyCode("USD")
                         .build())
