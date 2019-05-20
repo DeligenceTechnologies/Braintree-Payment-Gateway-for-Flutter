@@ -52,10 +52,22 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     }
   }
 
-  void payNow(){
-        DropInRequest dropInRequest = new DropInRequest().clientToken(clientToken);
-//        enableGooglePay(dropInRequest);
-        activity.startActivityForResult(dropInRequest.getIntent(context), REQUEST_CODE);
+    void payNow(){
+          DropInRequest dropInRequest = new DropInRequest().clientToken(clientToken);
+          enableGooglePay(dropInRequest);
+          activity.startActivityForResult(dropInRequest.getIntent(context), REQUEST_CODE);
+      }
+
+  private void enableGooglePay(DropInRequest dropInRequest){
+     GooglePaymentRequest googlePaymentRequest = new GooglePaymentRequest()
+                .transactionInfo(TransactionInfo.newBuilder()
+                        .setTotalPrice("1.00")
+                        .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
+                        .setCurrencyCode("USD")
+                        .build())
+                .billingAddressRequired(true);
+      dropInRequest.googlePaymentRequest(googlePaymentRequest);          
+      System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~ Running is the Google pay "+dropInRequest.toString());
     }
 
     @Override
