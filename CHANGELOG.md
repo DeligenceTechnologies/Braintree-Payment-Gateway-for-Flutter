@@ -14,3 +14,6 @@ Google Pay support
 
 ## 1.0.1
 Fixed bug in Boolean value 
+
+## 1.0.2
+Changed IOS code from Swift to Objective C
