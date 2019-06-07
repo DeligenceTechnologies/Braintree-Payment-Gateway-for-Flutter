@@ -41,9 +41,9 @@
     BTDropInController *dropInController = [[BTDropInController alloc] initWithAuthorization:clientTokenOrTokenizationKey request:request handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
         
         if (error != nil) {
-            flutterResult([FlutterError errorWithCode:[NSString stringWithFormat:@"%li", error.code] message:error.localizedDescription details:nil]);
+            flutterResult(@"error");
         } else if (result.cancelled) {
-            flutterResult([FlutterError errorWithCode:@"CANCELLED" message:@"Purchase process was cancelled." details:nil]);
+            flutterResult(@"cancelled");
         } else {
             flutterResult(result.paymentMethod.nonce);
         }
