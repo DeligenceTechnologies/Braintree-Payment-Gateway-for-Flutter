@@ -47,7 +47,7 @@ FlutterResult _flutterResult;
 - (void)showDropIn:(NSString *)clientTokenOrTokenizationKey withResult:(FlutterResult)flutterResult {
     BTDropInRequest *request = [[BTDropInRequest alloc] init];
     
-   BTDropInController *dropIn = [[BTDropInController alloc] initWithAuthorization:clientTokenOrTokenizationKey request:request handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
+   BTDropInController *dropInController = [[BTDropInController alloc] initWithAuthorization:clientTokenOrTokenizationKey request:request handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
         
         if (error != nil) {
             flutterResult(@"error");
@@ -74,7 +74,7 @@ FlutterResult _flutterResult;
         [self.viewController dismissViewControllerAnimated:YES completion:nil];
     }];
     
-    [_viewController presentViewController: dropIn animated:YES completion:nil];
+    [_viewController presentViewController: dropInController animated:YES completion:nil];
 }
 
 - (void)paymentAuthorizationViewController:(PKPaymentAuthorizationViewController* )controller didAuthorizePayment:(PKPayment* )payment completion:(void (^)(PKPaymentAuthorizationStatus))completion {
@@ -139,7 +139,7 @@ FlutterResult _flutterResult;
         paymentRequest.paymentSummaryItems =
         
         @[
-          [PKPaymentSummaryItem summaryItemWithLabel:@"Collective Giving" amount:[NSDecimalNumber decimalNumberWithString:@"1.00"]],
+          [PKPaymentSummaryItem summaryItemWithLabel:@"Collective Giving" amount:[NSDecimalNumber decimalNumberWithString:amount]],
           ];
         // Save the PKPaymentRequest or start the payment flow
         completion(paymentRequest, nil);
