@@ -16,9 +16,8 @@ class BraintreePayment {
       return result;
     } else {
       print("-----------------Inside IOS-------------------------");
-      String result = await _channel.invokeMethod('showDropIn', {
-        'clientToken': nonce,
-      });
+      String result = await _channel
+          .invokeMethod('showDropIn', {'clientToken': nonce, 'amount': amount});
       return result;
     }
   }
