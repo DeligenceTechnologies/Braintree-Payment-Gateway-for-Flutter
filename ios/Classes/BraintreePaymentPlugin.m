@@ -37,7 +37,7 @@ FlutterResult _flutterResult;
     if ([@"showDropIn" isEqualToString:call.method]) {
         _flutterResult = result;
         clientToken = call.arguments[@"clientToken"];
-        amount =call.arguments[@"amount"];
+        amount = call.arguments[@"amount"];
         [self showDropIn:clientToken withResult:result];
     } else {
         result(FlutterMethodNotImplemented);
@@ -138,7 +138,7 @@ FlutterResult _flutterResult;
         paymentRequest.paymentSummaryItems =
         
         @[
-          [PKPaymentSummaryItem summaryItemWithLabel:@"Collective Giving" amount:[NSDecimalNumber decimalNumberWithString:@"1.00"]],
+          [PKPaymentSummaryItem summaryItemWithLabel:@"Collective Giving" amount:[NSDecimalNumber decimalNumberWithString:amount]],
           ];
         // Save the PKPaymentRequest or start the payment flow
         completion(paymentRequest, nil);
