@@ -37,7 +37,7 @@ FlutterResult _flutterResult;
     if ([@"showDropIn" isEqualToString:call.method]) {
         _flutterResult = result;
         clientToken = call.arguments[@"clientToken"];
-        amount = call.arguments[@"amount"];
+        amount =call.arguments[@"amount"];
         [self showDropIn:clientToken withResult:result];
     } else {
         result(FlutterMethodNotImplemented);
@@ -46,7 +46,8 @@ FlutterResult _flutterResult;
 
 - (void)showDropIn:(NSString *)clientTokenOrTokenizationKey withResult:(FlutterResult)flutterResult {
     BTDropInRequest *request = [[BTDropInRequest alloc] init];
-    BTDropInController dropInController = [[BTDropInController alloc] initWithAuthorization:clientTokenOrTokenizationKey request:request handler:^(BTDropInController  Nonnull controller, BTDropInResult * Nullable result, NSError * _Nullable error) {
+    
+   BTDropInController *dropIn = [[BTDropInController alloc] initWithAuthorization:clientTokenOrTokenizationKey request:request handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
         
         if (error != nil) {
             flutterResult(@"error");
@@ -54,7 +55,7 @@ FlutterResult _flutterResult;
             flutterResult(@"cancelled");
         }
         else if(result.paymentOptionType == BTUIKPaymentOptionTypeApplePay){
-            [self setupPaymentRequest:^(PKPaymentRequest  _Nullable paymentRequest, NSError  _Nullable error) {
+            [self setupPaymentRequest:^(PKPaymentRequest*  _Nullable paymentRequest, NSError*  _Nullable error) {
                 if (error) {
                     flutterResult(@"error");
                     return;
@@ -73,10 +74,10 @@ FlutterResult _flutterResult;
         [self.viewController dismissViewControllerAnimated:YES completion:nil];
     }];
     
-    [_viewController presentViewController:dropInController animated:YES completion:nil];
+    [_viewController presentViewController: dropIn animated:YES completion:nil];
 }
 
-- (void)paymentAuthorizationViewController:(PKPaymentAuthorizationViewController )controller didAuthorizePayment:(PKPayment )payment completion:(void (^)(PKPaymentAuthorizationStatus))completion {
+- (void)paymentAuthorizationViewController:(PKPaymentAuthorizationViewController* )controller didAuthorizePayment:(PKPayment* )payment completion:(void (^)(PKPaymentAuthorizationStatus))completion {
     NSLog(@"*****************************something  went wrong  Nonce***********");
     BTAPIClient *braintreeClient;
     NSLog(@"*****************************Started main executionße************");
@@ -84,7 +85,7 @@ FlutterResult _flutterResult;
     
     BTApplePayClient *applePayClient = [[BTApplePayClient alloc] initWithAPIClient:braintreeClient];
     
-    [applePayClient tokenizeApplePayPayment:payment completion:^(BTApplePayCardNonce tokenizedApplePayPayment,NSError error) {
+    [applePayClient tokenizeApplePayPayment:payment completion:^(BTApplePayCardNonce* tokenizedApplePayPayment,NSError* error) {
         
         if (tokenizedApplePayPayment) {
             // On success, send nonce to your server for processing.
@@ -107,7 +108,7 @@ FlutterResult _flutterResult;
     }];
 }
 
-- (void)setupPaymentRequest:(void (^)(PKPaymentRequest  _Nullable, NSError  _Nullable))completion {
+- (void)setupPaymentRequest:(void (^)(PKPaymentRequest*  _Nullable, NSError*  _Nullable))completion {
     
     BTAPIClient *braintreeClient;
     
@@ -120,7 +121,7 @@ FlutterResult _flutterResult;
     // `currencyCode`, `merchantIdentifier`, and `supportedNetworks` properties.
     // You can also create the PKPaymentRequest manually. Be aware that you'll need to keep these in
     // sync with the gateway settings if you go this route.
-    [applePayClient paymentRequest:^(PKPaymentRequest  _Nullable paymentRequest, NSError  _Nullable error) {
+    [applePayClient paymentRequest:^(PKPaymentRequest*  _Nullable paymentRequest, NSError*  _Nullable error) {
         if (error) {
             completion(nil, error);
             return;
@@ -138,7 +139,7 @@ FlutterResult _flutterResult;
         paymentRequest.paymentSummaryItems =
         
         @[
-          [PKPaymentSummaryItem summaryItemWithLabel:@"Collective Giving" amount:[NSDecimalNumber decimalNumberWithString:amount]],
+          [PKPaymentSummaryItem summaryItemWithLabel:@"Collective Giving" amount:[NSDecimalNumber decimalNumberWithString:@"1.00"]],
           ];
         // Save the PKPaymentRequest or start the payment flow
         completion(paymentRequest, nil);
