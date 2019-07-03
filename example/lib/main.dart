@@ -30,6 +30,13 @@ class _PayState extends State<Pay> {
     print("Response of the payment $data");
   }
 
+  payPalFlow() async {
+    BraintreePayment braintreePayment = new BraintreePayment();
+    var data = await braintreePayment.startPayPalFlow(
+        nonce: clientNonce, amount: "2.0", currency: "USD");
+    print("Response of the payment $data");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,13 +44,24 @@ class _PayState extends State<Pay> {
         title: Text("Pay Now"),
       ),
       body: Center(
-        child: FlatButton(
-          onPressed: payNow,
-          color: Colors.teal,
-          child: Text(
-            "Pay Now",
-            style: TextStyle(color: Colors.white),
-          ),
+        child: Column(
+          children: <Widget>[
+            FlatButton(
+              onPressed: payNow,
+              color: Colors.teal,
+              child: Text(
+                "Pay Now (Drop In)",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),FlatButton(
+              onPressed: payPalFlow,
+              color: Colors.teal,
+              child: Text(
+                "Pay with paypal",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
         ),
       ),
     );
