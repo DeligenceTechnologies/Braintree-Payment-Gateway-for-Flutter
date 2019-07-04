@@ -40,7 +40,7 @@ android {
         versionName flutterVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        ndk { abiFilters 'armeabi-v7a' }
+        //ndk { abiFilters 'armeabi-v7a' }
     }
 
     buildTypes {

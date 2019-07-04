@@ -21,55 +21,59 @@ import com.braintreepayments.api.models.PaymentMethodNonce;
 public class PayPalFlowActivity extends AppCompatActivity implements PaymentMethodNonceCreatedListener,
         BraintreeErrorListener, BraintreeCancelListener {
 
+    public static final int RESULT_ERROR = -2;
+
     private BraintreeFragment mBraintreeFragment;
     private String clientToken;
     private String amount;
+    private String currency;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //getSupportActionBar().hide();
         clientToken = getIntent().getExtras().getString("clientToken");
         amount = getIntent().getExtras().getString("amount");
+        currency = getIntent().getExtras().getString("currency");
 
         try {
             mBraintreeFragment = BraintreeFragment.newInstance(this, clientToken);
-
-            // mBraintreeFragment is ready to use!
         } catch (InvalidArgumentException e) {
             // There was an issue with your authorization string.
         }
 
         PayPalRequest request = new PayPalRequest(amount)
-                .currencyCode("USD")
+                .currencyCode(currency)
                 .intent(PayPalRequest.INTENT_AUTHORIZE);
 
         PayPal.requestOneTimePayment(mBraintreeFragment, request);
-
         setContentView(R.layout.activity_pay_pal_flow);
-        //getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
     }
 
     @Override
     public void onPaymentMethodNonceCreated(PaymentMethodNonce paymentMethodNonce) {
         // Send nonce to server
         String nonce = paymentMethodNonce.getNonce();
+        Log.d(this.getLocalClassName(), "onPaymentMethodNonceCreated: " + nonce);
+        Intent data = new Intent();
+        data.putExtra("nonce", nonce);
         if (paymentMethodNonce instanceof PayPalAccountNonce) {
             PayPalAccountNonce payPalAccountNonce = (PayPalAccountNonce)paymentMethodNonce;
 
-            /*// Access additional information
+            // Access additional information
             String email = payPalAccountNonce.getEmail();
             String firstName = payPalAccountNonce.getFirstName();
             String lastName = payPalAccountNonce.getLastName();
             String phone = payPalAccountNonce.getPhone();
 
+            data.putExtra("email", email);
+            data.putExtra("firstName", firstName);
+            data.putExtra("lastName", lastName);
+            data.putExtra("phone", phone);
+
             // See PostalAddress.java for details
-            PostalAddress billingAddress = payPalAccountNonce.getBillingAddress();
-            PostalAddress shippingAddress = payPalAccountNonce.getShippingAddress();*/
+            //PostalAddress billingAddress = payPalAccountNonce.getBillingAddress();
+            //PostalAddress shippingAddress = payPalAccountNonce.getShippingAddress();
         }
-        Log.d(this.getLocalClassName(), "onPaymentMethodNonceCreated: " + nonce);
-        Intent data = new Intent();
-        data.putExtra("nonce", nonce);
         setResult(RESULT_OK, data);
         finish();
     }
@@ -105,6 +109,5 @@ public class PayPalFlowActivity extends AppCompatActivity implements PaymentMeth
         data.putExtra("errorMessage", errorMessage);
         setResult(RESULT_OK, data);
         finish();
-
     }
 }

@@ -3,9 +3,13 @@
 #import "BraintreeDropIn.h"
 @import PassKit;
 #import "BraintreeApplePay.h"
+#import "BraintreePayPal.h"
+#import "PayPalFlowViewController.h"
 
 NSString *clientToken;
 NSString *amount;
+NSString *currency;
+BTAPIClient *braintreeClient;
 FlutterResult _flutterResult;
 
 @interface BraintreePaymentPlugin ()
@@ -39,9 +43,28 @@ FlutterResult _flutterResult;
         clientToken = call.arguments[@"clientToken"];
         amount =call.arguments[@"amount"];
         [self showDropIn:clientToken withResult:result];
-    } else {
+    } else if ([@"startPayPalFlow" isEqualToString:call.method]) {
+        _flutterResult = result;
+        clientToken = call.arguments[@"clientToken"];
+        amount =call.arguments[@"amount"];
+        currency = call.arguments[@"currency"];
+        [self showPayPalFlow:clientToken withResult:result];
+    }
+    else {
         result(FlutterMethodNotImplemented);
     }
+}
+
+- (void)showPayPalFlow:(NSString *)clientTokenOrTokenizationKey
+              withResult:(FlutterResult)flutterResult{
+    // Create view controller for the PayPal payment process
+    // The new view controller configures a Cancel and Done button for the
+    // navigation bar.
+    PayPalFlowViewController *payPalController = [[PayPalFlowViewController alloc] init];
+    
+    [_viewController presentViewController: payPalController animated:YES completion:nil];
+    //[self.viewController showViewController:payPalController sender:self];
+    
 }
 
 - (void)showDropIn:(NSString *)clientTokenOrTokenizationKey withResult:(FlutterResult)flutterResult {

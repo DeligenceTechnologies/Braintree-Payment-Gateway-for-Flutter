@@ -106,7 +106,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                         activeResult.success(map);
                     } else {
                         map.put("status", "success");
-                        map.put("message", "Payment Nouce is ready.");
+                        map.put("message", "Payment Nonce is ready.");
                         map.put("paymentNonce", paymentNonce);
                         activeResult.success(map);
                     }
@@ -118,6 +118,24 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                     Exception error = (Exception) data.getSerializableExtra(DropInActivity.EXTRA_ERROR);
                     map.put("status", "fail");
                     map.put("message", error.getMessage());
+                    activeResult.success(map);
+                }
+                return true;
+            case PAYPAL_REQUEST_CODE:
+                if(resultCode == PayPalFlowActivity.RESULT_OK){
+                    String paymentNonce = data.getExtras().getString("nonce");
+                    map.put("status", "success");
+                    map.put("message", "Payment Nonce is ready.");
+                    map.put("paymentNonce", paymentNonce);
+                    activeResult.success(map);
+                } else if (resultCode == PayPalFlowActivity.RESULT_CANCELED){
+                    map.put("status", "canceled");
+                    map.put("message", "Paypal Flow was canceled by user.");
+                    activeResult.success(map);
+                } else if (resultCode == PayPalFlowActivity.RESULT_ERROR){
+                    String errorMessage = data.getExtras().getString("ErrorMessage");
+                    map.put("status", "fail");
+                    map.put("message", errorMessage);
                     activeResult.success(map);
                 }
                 return true;

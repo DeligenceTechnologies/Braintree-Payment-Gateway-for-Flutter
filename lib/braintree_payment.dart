@@ -24,12 +24,12 @@ class BraintreePayment {
 
   Future startPayPalFlow({String nonce, String amount, String currency}) async {
     if (Platform.isAndroid) {
-      var result = await _channel.invokeMethod<Map>('startPayPalFlow',
+      Map result = await _channel.invokeMethod<Map>('startPayPalFlow',
           {'clientToken': nonce, 'amount': amount, 'currency': currency});
       return result;
     } else {
       print("-----------------Inside IOS-------------------------");
-      String result = await _channel.invokeMethod('startPayPalFlow', {
+      Map  result = await _channel.invokeMethod('startPayPalFlow', {
         'clientToken': nonce,
         'amount': amount,
         'currency': currency,
