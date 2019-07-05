@@ -12,7 +12,7 @@ NSString *currency;
 BTAPIClient *braintreeClient;
 FlutterResult _flutterResult;
 
-@interface BraintreePaymentPlugin ()
+@interface BraintreePaymentPlugin () <PayPalFlowDelegate>
 @property (nonatomic, strong) UIViewController *viewController;
 @end
 
@@ -48,19 +48,21 @@ FlutterResult _flutterResult;
         clientToken = call.arguments[@"clientToken"];
         amount =call.arguments[@"amount"];
         currency = call.arguments[@"currency"];
-        [self showPayPalFlow:clientToken withResult:result];
+        [self showPayPalFlow:clientToken];
     }
     else {
         result(FlutterMethodNotImplemented);
     }
 }
 
-- (void)showPayPalFlow:(NSString *)clientTokenOrTokenizationKey
-              withResult:(FlutterResult)flutterResult{
+- (void)showPayPalFlow:(NSString *)clientTokenOrTokenizationKey {
     // Create view controller for the PayPal payment process
-    // The new view controller configures a Cancel and Done button for the
-    // navigation bar.
+    // todo - figure out how to make this transparent or show a hud while loading
     PayPalFlowViewController *payPalController = [[PayPalFlowViewController alloc] init];
+    payPalController.clientToken = clientToken;
+    payPalController.amount = amount;
+    payPalController.currency = currency;
+    payPalController.delegate = self;
     
     [_viewController presentViewController: payPalController animated:YES completion:nil];
     //[self.viewController showViewController:payPalController sender:self];
@@ -171,6 +173,10 @@ FlutterResult _flutterResult;
 
 - (void)paymentAuthorizationViewControllerDidFinish:(PKPaymentAuthorizationViewController *)controller {
     [self.viewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)resultDataFromPayPalFlow:(NSMutableDictionary *)data {
+    _flutterResult(data);
 }
 
 @end
