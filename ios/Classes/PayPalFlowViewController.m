@@ -23,11 +23,9 @@ BTAPIClient *apiClient;
     
     CGRect screenRect = [[UIScreen mainScreen] bounds];
     UIView *payPalView = [[UIView alloc] initWithFrame:screenRect];
-    payPalView.superview.backgroundColor = [[UIColor greenColor] colorWithAlphaComponent:0.5];
     payPalView.backgroundColor = [UIColor whiteColor];//  [[UIColor whiteColor] colorWithAlphaComponent:0.6];
+    payPalView.opaque = NO;
     self.view = payPalView;
-    self.view.opaque = NO;
-    
     [self startPayPalFlow];
     
     
