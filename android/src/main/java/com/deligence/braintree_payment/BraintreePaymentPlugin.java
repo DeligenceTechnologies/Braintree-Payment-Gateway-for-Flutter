@@ -30,6 +30,8 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
   private static final int REQUEST_CODE = 0x1337;
   String clientToken="";
   String amount="";
+  String googleMerchantId="";
+  boolean inSandbox;
   boolean enableGooglePay;
   HashMap<String, String> map = new HashMap<String, String>();
   public BraintreePaymentPlugin(Registrar registrar) {
@@ -49,6 +51,8 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
       this.activeResult=result;
       this.clientToken=call.argument("clientToken");
       this.amount=call.argument("amount");
+      this.inSandbox=call.argument("inSandbox");
+      this.googleMerchantId=call.argument("googleMerchantId");
       this.enableGooglePay=call.argument("enableGooglePay");
       payNow();
     } else {
@@ -65,7 +69,8 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
       }
 
   private void enableGooglePay(DropInRequest dropInRequest){
-     GooglePaymentRequest googlePaymentRequest = new GooglePaymentRequest()
+    if(inSandbox){
+      GooglePaymentRequest googlePaymentRequest = new GooglePaymentRequest()
                 .transactionInfo(TransactionInfo.newBuilder()
                         .setTotalPrice(amount)
                         .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
@@ -73,7 +78,17 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                         .build())
                 .billingAddressRequired(true);
       dropInRequest.googlePaymentRequest(googlePaymentRequest);          
-      System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~ Running is the Google pay "+dropInRequest.toString());
+    }else{
+      GooglePaymentRequest googlePaymentRequest = new GooglePaymentRequest()
+                .transactionInfo(TransactionInfo.newBuilder()
+                        .setTotalPrice(amount)
+                        .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
+                        .setCurrencyCode("USD")
+                        .build())
+                .billingAddressRequired(true)
+                .googleMerchantId(googleMerchantId);;
+        dropInRequest.googlePaymentRequest(googlePaymentRequest);          
+    }
     }
 
     @Override

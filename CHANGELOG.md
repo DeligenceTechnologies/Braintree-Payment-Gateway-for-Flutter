@@ -17,3 +17,11 @@ Fixed bug in Boolean value
 
 ## 1.0.2
 Changed IOS code from Swift to Objective C
+
+
+## 1.1.8
+Added support for Sandbox
+
+
+## 1.1.9
+Updated documentation
