@@ -63,7 +63,7 @@ import 'package:braintree_payment/braintree_payment.dart';
 `Step 3`- Create a object of BraintreePayment and pass Client nonce.
 
 ```dart
-String clientNonce = " GET YOUR CLIENT NONCE FROM THE YOUR SERVER";
+String clientNonce = " GET YOUR CLIENT NONCE FROM YOUR SERVER";
 
 BraintreePayment braintreePayment = new BraintreePayment();
 var data = await braintreePayment.showDropIn(
