@@ -30,7 +30,6 @@ public class PayPalFlowActivity extends AppCompatActivity implements PaymentMeth
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(this.getLocalClassName(), "onCreateStart: Paypal activity onCreate Start");
         super.onCreate(savedInstanceState);
         clientToken = getIntent().getExtras().getString("clientToken");
         amount = getIntent().getExtras().getString("amount");
@@ -38,7 +37,6 @@ public class PayPalFlowActivity extends AppCompatActivity implements PaymentMeth
 
         try {
             mBraintreeFragment = BraintreeFragment.newInstance(this, clientToken);
-            Log.d(this.getLocalClassName(), "onCreate: Init Braintree Fragment done" );
         } catch (InvalidArgumentException e) {
             // There was an issue with your authorization string.
         }
@@ -49,7 +47,6 @@ public class PayPalFlowActivity extends AppCompatActivity implements PaymentMeth
 
         PayPal.requestOneTimePayment(mBraintreeFragment, request);
         setContentView(R.layout.activity_pay_pal_flow);
-        Log.d(this.getLocalClassName(), "onCreate: finished" );
     }
 
     @Override
@@ -76,7 +73,6 @@ public class PayPalFlowActivity extends AppCompatActivity implements PaymentMeth
             // See PostalAddress.java for details
             //PostalAddress billingAddress = payPalAccountNonce.getBillingAddress();
             //PostalAddress shippingAddress = payPalAccountNonce.getShippingAddress();
-            Log.d(this.getLocalClassName(), "onPaymentNonceCreated: Paypal payment process created a nonce");
         }
         setResult(RESULT_OK, data);
         finish();
