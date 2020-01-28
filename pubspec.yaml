@@ -1,6 +1,6 @@
 name: braintree_payment
 description: Braintree Payment plugin for Flutter apps by Deligence Technologies. This payment gateway plugin lets you integrate Braintree Drop In payment UI in just 4 easy steps.
-version: 1.1.9
+version: 1.2.3
 author: Deligence <flutter@deligence.com>
 homepage: https://github.com/DeligenceTechnologies/Braintree-Payment-Gateway-for-Flutter
 
