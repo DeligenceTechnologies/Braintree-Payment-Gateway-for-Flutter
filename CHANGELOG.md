@@ -25,3 +25,6 @@ Added support for Sandbox
 
 ## 1.1.9
 Updated documentation
+
+## 1.2.3
+Fix incompatibility with flutter's new version
