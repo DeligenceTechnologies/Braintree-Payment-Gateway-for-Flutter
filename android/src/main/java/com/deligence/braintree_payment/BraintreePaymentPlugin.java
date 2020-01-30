@@ -21,17 +21,18 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
-public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResultListener {
+public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResultListener{
     private Activity activity;
     private Context context;
     Result activeResult;
     private static final int REQUEST_CODE = 0x1337;
     private static final int PAYPAL_REQUEST_CODE = 0x1338;
-    String clientToken = "";
-    String amount = "";
+    String clientToken="";
+    String amount="";
+    String googleMerchantId="";
+    boolean inSandbox;
     boolean enableGooglePay;
     HashMap<String, String> map = new HashMap<String, String>();
-
     String payPalFlow = ""; //either "Vault" or "Checkout"
     BraintreeFragment mBraintreeFragment;
 
@@ -49,11 +50,13 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     @Override
     public void onMethodCall(MethodCall call, Result result) {
         if (call.method.equals("showDropIn")) {
-            this.activeResult = result;
-            this.clientToken = call.argument("clientToken");
-            this.amount = call.argument("amount");
-            this.enableGooglePay = call.argument("enableGooglePay");
-            payNow();
+        this.activeResult=result;
+        this.clientToken=call.argument("clientToken");
+        this.amount=call.argument("amount");
+        this.inSandbox=call.argument("inSandbox");
+        this.googleMerchantId=call.argument("googleMerchantId");
+        this.enableGooglePay=call.argument("enableGooglePay");
+        payNow();
         } else if (call.method.equals("startPayPalFlow")) {
             this.activeResult = result;
             this.clientToken = call.argument("clientToken");
@@ -64,8 +67,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
             result.notImplemented();
         }
     }
-
-
+    
     void payNow() {
         DropInRequest dropInRequest = new DropInRequest().clientToken(clientToken);
         if (enableGooglePay) {
@@ -81,20 +83,32 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
             activity.startActivityForResult(p, PAYPAL_REQUEST_CODE);
     }
 
-    private void enableGooglePay(DropInRequest dropInRequest) {
+    private void enableGooglePay(DropInRequest dropInRequest){
+        if(inSandbox){
         GooglePaymentRequest googlePaymentRequest = new GooglePaymentRequest()
-                .transactionInfo(TransactionInfo.newBuilder()
-                        .setTotalPrice(amount)
-                        .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
-                        .setCurrencyCode("USD")
-                        .build())
-                .billingAddressRequired(true);
-        dropInRequest.googlePaymentRequest(googlePaymentRequest);
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~ Running is the Google pay " + dropInRequest.toString());
+                    .transactionInfo(TransactionInfo.newBuilder()
+                            .setTotalPrice(amount)
+                            .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
+                            .setCurrencyCode("USD")
+                            .build())
+                    .billingAddressRequired(true);
+        dropInRequest.googlePaymentRequest(googlePaymentRequest);          
+        }else{
+        GooglePaymentRequest googlePaymentRequest = new GooglePaymentRequest()
+                    .transactionInfo(TransactionInfo.newBuilder()
+                            .setTotalPrice(amount)
+                            .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
+                            .setCurrencyCode("USD")
+                            .build())
+                    .billingAddressRequired(true)
+                    .googleMerchantId(googleMerchantId);;
+            dropInRequest.googlePaymentRequest(googlePaymentRequest);          
+        }
     }
 
     @Override
-    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data)  {
+        if(activeResult == null) {return true;}
         switch (requestCode) {
             case REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
