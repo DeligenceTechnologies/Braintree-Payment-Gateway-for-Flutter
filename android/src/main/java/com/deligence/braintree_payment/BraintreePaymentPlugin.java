@@ -121,7 +121,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                     } else {
                         map.put("status", "success");
                         map.put("message", "Payment Nonce is ready.");
-                        map.put("paymentNonce", paymentNonce);
+                        map.put("nonce", paymentNonce);
                         activeResult.success(map);
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
