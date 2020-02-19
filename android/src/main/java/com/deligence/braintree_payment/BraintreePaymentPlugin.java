@@ -140,7 +140,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                     String paymentNonce = data.getExtras().getString("nonce");
                     map.put("status", "success");
                     map.put("message", "Payment Nonce is ready.");
-                    map.put("paymentNonce", paymentNonce);
+                    map.put("nonce", paymentNonce);
                     activeResult.success(map);
                 } else if (resultCode == PayPalFlowActivity.RESULT_CANCELED) {
                     map.put("status", "canceled");
