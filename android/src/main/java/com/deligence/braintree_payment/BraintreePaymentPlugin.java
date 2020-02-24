@@ -93,7 +93,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
 
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data)  {
-      if(activeResult == null) {return true;}
+      if(activeResult == null) return false;
         switch (requestCode) {
             case REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
