@@ -1,0 +1,65 @@
+PODS:
+  - Braintree/Apple-Pay (4.31.0):
+    - Braintree/Core
+  - Braintree/Card (4.31.0):
+    - Braintree/Core
+  - Braintree/Core (4.31.0)
+  - Braintree/PaymentFlow (4.31.0):
+    - Braintree/Card
+    - Braintree/Core
+    - Braintree/PayPalOneTouch
+  - Braintree/PayPal (4.31.0):
+    - Braintree/Core
+    - Braintree/PayPalOneTouch
+  - Braintree/PayPalDataCollector (4.31.0):
+    - Braintree/Core
+    - Braintree/PayPalUtils
+  - Braintree/PayPalOneTouch (4.31.0):
+    - Braintree/Core
+    - Braintree/PayPalDataCollector
+    - Braintree/PayPalUtils
+  - Braintree/PayPalUtils (4.31.0)
+  - Braintree/UnionPay (4.31.0):
+    - Braintree/Card
+    - Braintree/Core
+  - braintree_payment (1.0.2):
+    - Braintree/Apple-Pay
+    - Braintree/PayPal
+    - BraintreeDropIn
+    - Flutter
+  - BraintreeDropIn (8.0.0):
+    - BraintreeDropIn/DropIn (= 8.0.0)
+  - BraintreeDropIn/DropIn (8.0.0):
+    - Braintree/Card (~> 4.31)
+    - Braintree/Core (~> 4.31)
+    - Braintree/PaymentFlow (~> 4.31)
+    - Braintree/PayPal (~> 4.31)
+    - Braintree/UnionPay (~> 4.31)
+    - BraintreeDropIn/UIKit
+  - BraintreeDropIn/UIKit (8.0.0)
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - braintree_payment (from `.symlinks/plugins/braintree_payment/ios`)
+  - Flutter (from `Flutter`)
+
+SPEC REPOS:
+  trunk:
+    - Braintree
+    - BraintreeDropIn
+
+EXTERNAL SOURCES:
+  braintree_payment:
+    :path: ".symlinks/plugins/braintree_payment/ios"
+  Flutter:
+    :path: Flutter
+
+SPEC CHECKSUMS:
+  Braintree: c20fb599a8cfee54ad7dfc603dee68f0922bfcba
+  braintree_payment: d4a57a529b39a42c9b07b8e2d762ca9202309630
+  BraintreeDropIn: 441ad16190e20548a2544652bffef66d457eb70a
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+
+PODFILE CHECKSUM: 3dbe063e9c90a5d7c9e4e76e70a821b9e2c1d271
+
+COCOAPODS: 1.8.3

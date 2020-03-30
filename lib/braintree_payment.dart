@@ -4,14 +4,14 @@ import 'package:flutter/services.dart';
 
 class BraintreePayment {
   static const MethodChannel _channel =
-      const MethodChannel('braintree_payment');
+  const MethodChannel('braintree_payment');
 
-  Future showDropIn(
-      {String nonce = "",
-      String amount = "",
-      bool enableGooglePay = true,
-      bool inSandbox = true,
-      String googleMerchantId = ""}) async {
+  Future showDropIn({String nonce = "",
+    String amount = "",
+    bool enableGooglePay = true,
+    bool inSandbox = true,
+    bool nameRequired = false,
+    String googleMerchantId = ""}) async {
     if (Platform.isAndroid) {
       var result;
       if (inSandbox == false && googleMerchantId.isEmpty) {
@@ -27,6 +27,7 @@ class BraintreePayment {
           'amount': amount,
           'enableGooglePay': enableGooglePay,
           'inSandbox': inSandbox,
+          'nameRequired': nameRequired,
           'googleMerchantId': googleMerchantId
         });
       } else if (inSandbox) {
@@ -34,6 +35,7 @@ class BraintreePayment {
           'clientToken': nonce,
           'amount': amount,
           'inSandbox': inSandbox,
+          'nameRequired': nameRequired,
           'enableGooglePay': enableGooglePay,
           'googleMerchantId': googleMerchantId
         });
@@ -41,7 +43,11 @@ class BraintreePayment {
       return result;
     } else {
       String result = await _channel
-          .invokeMethod('showDropIn', {'clientToken': nonce, 'amount': amount});
+          .invokeMethod('showDropIn', {
+        'clientToken': nonce,
+        'amount': amount,
+        'nameRequired': nameRequired
+      });
       return result;
     }
   }

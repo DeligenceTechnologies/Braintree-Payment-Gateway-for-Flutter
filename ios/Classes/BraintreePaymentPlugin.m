@@ -6,6 +6,7 @@
 
 NSString *clientToken;
 NSString *amount;
+bool nameRequired = false;
 FlutterResult _flutterResult;
 
 @interface BraintreePaymentPlugin ()
@@ -38,6 +39,7 @@ FlutterResult _flutterResult;
         _flutterResult = result;
         clientToken = call.arguments[@"clientToken"];
         amount =call.arguments[@"amount"];
+        nameRequired = call.arguments[@"nameRequired"];
         [self showDropIn:clientToken withResult:result];
     } else {
         result(FlutterMethodNotImplemented);
@@ -46,7 +48,9 @@ FlutterResult _flutterResult;
 
 - (void)showDropIn:(NSString *)clientTokenOrTokenizationKey withResult:(FlutterResult)flutterResult {
     BTDropInRequest *request = [[BTDropInRequest alloc] init];
-    
+    if(nameRequired)
+        request.cardholderNameSetting = BTFormFieldRequired;
+
    BTDropInController *dropInController = [[BTDropInController alloc] initWithAuthorization:clientTokenOrTokenizationKey request:request handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
         
         if (error != nil) {

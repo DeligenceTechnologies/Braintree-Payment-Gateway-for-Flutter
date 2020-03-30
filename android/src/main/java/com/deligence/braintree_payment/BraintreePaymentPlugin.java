@@ -15,9 +15,8 @@ import com.braintreepayments.api.dropin.DropInActivity;
 import com.braintreepayments.api.dropin.DropInRequest;
 import com.braintreepayments.api.dropin.DropInResult;
 import com.braintreepayments.api.models.GooglePaymentRequest;
-import com.braintreepayments.api.models.PayPalRequest;
-import com.braintreepayments.api.models.PaymentMethodNonce;
 
+import com.braintreepayments.cardform.view.CardForm;
 import com.google.android.gms.wallet.TransactionInfo;
 import com.google.android.gms.wallet.WalletConstants;
 
@@ -32,6 +31,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
   String amount="";
   String googleMerchantId="";
   boolean inSandbox;
+  boolean nameRequired;
   boolean enableGooglePay;
   HashMap<String, String> map = new HashMap<String, String>();
   public BraintreePaymentPlugin(Registrar registrar) {
@@ -54,6 +54,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
       this.inSandbox=call.argument("inSandbox");
       this.googleMerchantId=call.argument("googleMerchantId");
       this.enableGooglePay=call.argument("enableGooglePay");
+      this.nameRequired = call.argument("nameRequired");
       payNow();
     } else {
       result.notImplemented();
@@ -62,7 +63,8 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
 
     void payNow(){
           DropInRequest dropInRequest = new DropInRequest().clientToken(clientToken);
-          if(enableGooglePay){
+          dropInRequest.cardholderNameStatus(nameRequired ? CardForm.FIELD_REQUIRED : CardForm.FIELD_OPTIONAL);
+        if(enableGooglePay){
             enableGooglePay(dropInRequest);
           }
           activity.startActivityForResult(dropInRequest.getIntent(context), REQUEST_CODE);
@@ -77,7 +79,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                         .setCurrencyCode("USD")
                         .build())
                 .billingAddressRequired(true);
-      dropInRequest.googlePaymentRequest(googlePaymentRequest);          
+      dropInRequest.googlePaymentRequest(googlePaymentRequest);
     }else{
       GooglePaymentRequest googlePaymentRequest = new GooglePaymentRequest()
                 .transactionInfo(TransactionInfo.newBuilder()
@@ -87,7 +89,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                         .build())
                 .billingAddressRequired(true)
                 .googleMerchantId(googleMerchantId);;
-        dropInRequest.googlePaymentRequest(googlePaymentRequest);          
+        dropInRequest.googlePaymentRequest(googlePaymentRequest);
     }
     }
 
@@ -101,7 +103,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                     String paymentNonce = result.getPaymentMethodNonce().getNonce();
                     if(paymentNonce == null && paymentNonce.isEmpty()){
                       map.put("status", "fail");
-                      map.put("message", "Payment Nonce is Empty.");  
+                      map.put("message", "Payment Nonce is Empty.");
                       activeResult.success(map);
                     }
                     else{
@@ -123,6 +125,6 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                 return true;
             default:
               return false;
-        } 
+        }
     }
 }
