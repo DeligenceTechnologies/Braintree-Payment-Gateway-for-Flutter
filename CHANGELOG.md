@@ -1,4 +1,4 @@
-## 1.2.3
+## 1.2.4
 Revert Fix incompatibility with flutter's new version
 Add optional param card holder's name.
 
