@@ -117,6 +117,16 @@
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="flutter.settings" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="Nexus_5_API_28" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="C:" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="PropertiesComponent">
+    <property name="android.sdk.path" value="$USER_HOME$/Android/Sdk" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/example" />
+    <property name="settings.editor.selected.configurable" value="dart.settings" />
+
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="RunDashboard">

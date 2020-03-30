@@ -9,6 +9,8 @@ import com.braintreepayments.api.dropin.DropInActivity;
 import com.braintreepayments.api.dropin.DropInRequest;
 import com.braintreepayments.api.dropin.DropInResult;
 import com.braintreepayments.api.models.GooglePaymentRequest;
+import com.braintreepayments.cardform.view.CardForm;
+
 import com.google.android.gms.wallet.TransactionInfo;
 import com.google.android.gms.wallet.WalletConstants;
 
@@ -35,6 +37,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     HashMap<String, String> map = new HashMap<String, String>();
     String payPalFlow = ""; //either "Vault" or "Checkout"
     BraintreeFragment mBraintreeFragment;
+
 
     public BraintreePaymentPlugin(Registrar registrar) {
         activity = registrar.activity();
@@ -71,6 +74,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     void payNow() {
         DropInRequest dropInRequest = new DropInRequest().clientToken(clientToken);
         if (enableGooglePay) {
+
             enableGooglePay(dropInRequest);
         }
         activity.startActivityForResult(dropInRequest.getIntent(context), REQUEST_CODE);
@@ -80,7 +84,6 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
         Intent p = new Intent(this.context, PayPalFlowActivity.class);
         p.putExtra("clientToken", clientToken);
         p.putExtra("amount", amount);
-        activity.startActivityForResult(p, PAYPAL_REQUEST_CODE);
     }
 
     private void enableGooglePay(DropInRequest dropInRequest) {
@@ -108,7 +111,9 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     }
 
     @Override
-    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+//     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data)  {
+      if(activeResult == null) return false;
         switch (requestCode) {
             case REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {

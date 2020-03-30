@@ -37,6 +37,7 @@ PODS:
     - Braintree/UnionPay (~> 4.30)
     - BraintreeDropIn/UIKit
   - BraintreeDropIn/UIKit (7.5.0)
+
   - Flutter (1.0.0)
 
 DEPENDENCIES:
