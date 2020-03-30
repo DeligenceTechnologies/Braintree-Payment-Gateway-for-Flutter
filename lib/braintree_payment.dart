@@ -51,4 +51,20 @@ class BraintreePayment {
       return result;
     }
   }
+
+  Future startPayPalFlow({String nonce, String amount, String currency}) async {
+    if (Platform.isAndroid) {
+      Map result = await _channel.invokeMethod<Map>('startPayPalFlow',
+          {'clientToken': nonce, 'amount': amount, 'currency': currency});
+      return result;
+    } else {
+      print("-----------------Inside IOS-------------------------");
+      Map  result = await _channel.invokeMethod('startPayPalFlow', {
+        'clientToken': nonce,
+        'amount': amount,
+        'currency': currency,
+      });
+      return result;
+    }
+  }
 }

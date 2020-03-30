@@ -8,9 +8,31 @@
 
 Braintree Payment plugin for Flutter apps by [Deligence Technologies]("https://www.deligence.com/"). This plugin lets you integrate [Braintree DropIn payment UI]("https://developers.braintreepayments.com/guides/drop-in/overview") in just 4 easy steps.
 
+## Table of Content
+  * [Supported Features](#supported-features)
+  * [Minimum Requirements](#minimum-requirements)
+  * [Steps to Enable Payment](#steps-to-enable-payment)
+    + [Paypal](#paypal)
+      - [Android:](#android-)
+      - [IOS:](#ios-)
+    + [Google Pay](#google-pay)
+    + [Screenshot](#screenshot)
+  * [License](#license)
+
+## Supported Features
+The plugin allows to use the Drop-In UI provided by braintree on android and iOS for following payment flows through braintree
+- credit card payment 
+- paypal payment 
+- google Pay (on Android only)
+
+**Note: Apple pay is not supported right now**
+
+Additionally a direct Paypal-Checkout Flow is supported (without using the drop-in UI). This is only handy in situations where you just want to provide a paypal only payment flow. 
+
+Otherwise the drop-in UI should be your prefered usage scenario. 
 
 
-### Minimum Requirements
+## Minimum Requirements
 
 > Android :  To use this plugin you must [`migrate to AndroidX`](`https://flutter.dev/docs/development/packages-and-plugins/androidx-compatibility`) and set your `minSdkVersion` to at least `21`.
 
@@ -49,7 +71,8 @@ To add support for Paypal Payment add below lines inside AndroidManifest.xml.
     For Detailed instuction follow steps here :- https://developers.braintreepayments.com/guides/paypal/client-side/ios/v4
 
 
-#### Google Pay
+
+### Google Pay
 To add support for Google Pay add below lines inside AndroidManifest.xml.
 ```xml
 <meta-data android:name="com.google.android.gms.wallet.api.enabled" android:value="true"/>
@@ -87,7 +110,7 @@ print("Response of the payment $data");
 <img src="https://drive.google.com/uc?authuser=0&id=1ZN0057InSjNATdlJBVt-0kmMXZ72DZLU&export=download" width="200">
 
 
-### License
+## License
 
     BSD 3-Clause License
 
