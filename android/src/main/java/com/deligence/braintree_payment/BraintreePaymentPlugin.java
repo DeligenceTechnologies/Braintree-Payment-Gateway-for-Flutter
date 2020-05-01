@@ -9,6 +9,7 @@ import com.braintreepayments.api.dropin.DropInActivity;
 import com.braintreepayments.api.dropin.DropInRequest;
 import com.braintreepayments.api.dropin.DropInResult;
 import com.braintreepayments.api.models.GooglePaymentRequest;
+import com.braintreepayments.api.models.ThreeDSecureRequest;
 import com.braintreepayments.cardform.view.CardForm;
 
 import com.google.android.gms.wallet.TransactionInfo;
@@ -34,6 +35,8 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     String googleMerchantId = "";
     boolean inSandbox;
     boolean enableGooglePay;
+    boolean threeDs2;
+    boolean collectDeviceData;
     HashMap<String, String> map = new HashMap<String, String>();
     String payPalFlow = ""; //either "Vault" or "Checkout"
     BraintreeFragment mBraintreeFragment;
@@ -59,6 +62,8 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
             this.inSandbox = call.argument("inSandbox");
             this.googleMerchantId = call.argument("googleMerchantId");
             this.enableGooglePay = call.argument("enableGooglePay");
+            this.threeDs2 = call.argument("threeDs2");
+            this.collectDeviceData = call.argument("collectDeviceData");
             payNow();
         } else if (call.method.equals("startPayPalFlow")) {
             this.activeResult = result;
@@ -74,8 +79,17 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     void payNow() {
         DropInRequest dropInRequest = new DropInRequest().clientToken(clientToken);
         if (enableGooglePay) {
-
             enableGooglePay(dropInRequest);
+        }
+        if(collectDeviceData){
+            dropInRequest.collectDeviceData(true);
+        }
+        if(threeDs2){
+            ThreeDSecureRequest threeDSecureRequest = new ThreeDSecureRequest()
+                    .amount(amount)
+                    .versionRequested(ThreeDSecureRequest.VERSION_2);
+            dropInRequest.threeDSecureRequest(threeDSecureRequest);
+            dropInRequest.requestThreeDSecureVerification(true);
         }
         activity.startActivityForResult(dropInRequest.getIntent(context), REQUEST_CODE);
     }
@@ -105,7 +119,6 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                             .build())
                     .billingAddressRequired(true)
                     .googleMerchantId(googleMerchantId);
-            ;
             dropInRequest.googlePaymentRequest(googlePaymentRequest);
         }
     }
@@ -118,6 +131,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
             case REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
                     DropInResult result = data.getParcelableExtra(DropInResult.EXTRA_DROP_IN_RESULT);
+                    String deviceData = result.getDeviceData();
                     String paymentNonce = result.getPaymentMethodNonce().getNonce();
                     if (paymentNonce == null && paymentNonce.isEmpty()) {
                         map.put("status", "fail");
@@ -127,6 +141,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                         map.put("status", "success");
                         map.put("message", "Payment Nonce is ready.");
                         map.put("nonce", paymentNonce);
+                        map.put("deviceData", deviceData);
                         activeResult.success(map);
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
