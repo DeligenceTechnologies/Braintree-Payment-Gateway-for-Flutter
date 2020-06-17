@@ -8,6 +8,7 @@
 
 NSString *clientToken;
 NSString *amount;
+NSString *nameRequired;
 NSString *currency;
 BTAPIClient *braintreeClient;
 FlutterResult _flutterResult;
