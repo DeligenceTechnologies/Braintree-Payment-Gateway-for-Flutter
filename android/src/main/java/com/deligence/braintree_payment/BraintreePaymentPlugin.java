@@ -9,8 +9,7 @@ import com.braintreepayments.api.dropin.DropInActivity;
 import com.braintreepayments.api.dropin.DropInRequest;
 import com.braintreepayments.api.dropin.DropInResult;
 import com.braintreepayments.api.models.GooglePaymentRequest;
-import com.braintreepayments.cardform.view.CardForm;
-
+import com.braintreepayments.api.models.PayPalRequest;
 import com.google.android.gms.wallet.TransactionInfo;
 import com.google.android.gms.wallet.WalletConstants;
 
@@ -31,8 +30,10 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     private static final int PAYPAL_REQUEST_CODE = 0x1338;
     String clientToken = "";
     String amount = "";
+    String currencyCode = "";
     String googleMerchantId = "";
     boolean inSandbox;
+    boolean useVault;
     boolean enableGooglePay;
     HashMap<String, String> map = new HashMap<String, String>();
     String payPalFlow = ""; //either "Vault" or "Checkout"
@@ -56,6 +57,10 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
             this.activeResult = result;
             this.clientToken = call.argument("clientToken");
             this.amount = call.argument("amount");
+            this.currencyCode = call.argument("currencyCode");
+            if (this.currencyCode == null)
+                currencyCode = "USD";
+            this.useVault = call.argument("useVault");
             this.inSandbox = call.argument("inSandbox");
             this.googleMerchantId = call.argument("googleMerchantId");
             this.enableGooglePay = call.argument("enableGooglePay");
@@ -77,6 +82,10 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
 
             enableGooglePay(dropInRequest);
         }
+        if (!useVault) {
+            PayPalRequest paypalRequest = new PayPalRequest(amount).currencyCode(currencyCode);
+            dropInRequest.paypalRequest(paypalRequest);
+        }
         activity.startActivityForResult(dropInRequest.getIntent(context), REQUEST_CODE);
     }
 
@@ -92,7 +101,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                     .transactionInfo(TransactionInfo.newBuilder()
                             .setTotalPrice(amount)
                             .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
-                            .setCurrencyCode("USD")
+                            .setCurrencyCode(currencyCode)
                             .build())
                     .billingAddressRequired(true);
             dropInRequest.googlePaymentRequest(googlePaymentRequest);
@@ -101,7 +110,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                     .transactionInfo(TransactionInfo.newBuilder()
                             .setTotalPrice(amount)
                             .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
-                            .setCurrencyCode("USD")
+                            .setCurrencyCode(currencyCode)
                             .build())
                     .billingAddressRequired(true)
                     .googleMerchantId(googleMerchantId);
@@ -112,8 +121,8 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
 
     @Override
 //     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-    public boolean onActivityResult(int requestCode, int resultCode, Intent data)  {
-      if(activeResult == null) return false;
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (activeResult == null) return false;
         switch (requestCode) {
             case REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {

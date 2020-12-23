@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:braintree_payment/braintree_payment.dart';
+import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
 
@@ -27,7 +27,23 @@ class _PayState extends State<Pay> {
   payNow() async {
     BraintreePayment braintreePayment = new BraintreePayment();
     var data = await braintreePayment.showDropIn(
-        nonce: clientNonce, amount: "2.0", enableGooglePay: true, nameRequired:true);
+        nonce: clientNonce,
+        amount: "2.0",
+        enableGooglePay: true,
+        nameRequired: true);
+    print("Response of the payment $data");
+  }
+
+  //disable vault for one time payments
+  payWithoutVaultNow() async {
+    BraintreePayment braintreePayment = new BraintreePayment();
+    var data = await braintreePayment.showDropIn(
+        nonce: clientNonce,
+        amount: "2.0",
+        enableGooglePay: true,
+        nameRequired: true,
+        currencyCode: "EUR",
+        useVault: false);
     print("Response of the payment $data");
   }
 
@@ -54,7 +70,16 @@ class _PayState extends State<Pay> {
                 "Pay Now (Drop In)",
                 style: TextStyle(color: Colors.white),
               ),
-            ),FlatButton(
+            ),
+            FlatButton(
+              onPressed: payWithoutVaultNow,
+              color: Colors.teal,
+              child: Text(
+                "Pay Now without vault (Drop In)",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            FlatButton(
               onPressed: payPalFlow,
               color: Colors.teal,
               child: Text(

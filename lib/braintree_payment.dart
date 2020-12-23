@@ -10,6 +10,8 @@ class BraintreePayment {
     String amount = "",
     bool enableGooglePay = true,
     bool inSandbox = true,
+    bool useVault = true,
+    String currencyCode = "USD",
     bool nameRequired = false,
     String googleMerchantId = ""}) async {
     if (Platform.isAndroid) {
@@ -27,6 +29,8 @@ class BraintreePayment {
           'amount': amount,
           'enableGooglePay': enableGooglePay,
           'inSandbox': inSandbox,
+          'useVault': useVault,
+          'currencyCode': currencyCode,
           'nameRequired': nameRequired,
           'googleMerchantId': googleMerchantId
         });
@@ -34,6 +38,8 @@ class BraintreePayment {
         result = await _channel.invokeMethod<Map>('showDropIn', {
           'clientToken': nonce,
           'amount': amount,
+          'useVault': useVault,
+          'currencyCode': currencyCode,
           'inSandbox': inSandbox,
           'nameRequired': nameRequired,
           'enableGooglePay': enableGooglePay,
