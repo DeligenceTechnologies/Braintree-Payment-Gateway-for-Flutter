@@ -8,7 +8,9 @@
 
 NSString *clientToken;
 NSString *amount;
+BOOL nameRequired;
 NSString *currency;
+BOOL useVault;
 BTAPIClient *braintreeClient;
 FlutterResult _flutterResult;
 
@@ -42,6 +44,8 @@ FlutterResult _flutterResult;
         _flutterResult = result;
         clientToken = call.arguments[@"clientToken"];
         amount =call.arguments[@"amount"];
+        currency = call.arguments[@"currency"];
+        useVault = call.arguments[@"useVault"];
         nameRequired = call.arguments[@"nameRequired"];
         [self showDropIn:clientToken withResult:result];
     } else if ([@"startPayPalFlow" isEqualToString:call.method]) {
@@ -74,18 +78,31 @@ FlutterResult _flutterResult;
     BTDropInRequest *request = [[BTDropInRequest alloc] init];
     if(nameRequired)
         request.cardholderNameSetting = BTFormFieldRequired;
+    if(!useVault) {
+        BTPayPalRequest *payPalRequest = [[BTPayPalRequest alloc] initWithAmount:amount];
+        payPalRequest.currencyCode = currency;
+        request.payPalRequest = payPalRequest;
+    }
 
    BTDropInController *dropInController = [[BTDropInController alloc] initWithAuthorization:clientTokenOrTokenizationKey request:request handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
         
+       NSMutableDictionary * map = [[NSMutableDictionary alloc] init];
+    
         if (error != nil) {
-            flutterResult(@"error");
+            map[@"status"] = @"fail";
+            map[@"message"] = @"Payment Nonce is Empty.";
+            flutterResult(map);
         } else if (result.cancelled) {
-            flutterResult(@"cancelled");
+            map[@"status"] = @"fail";
+            map[@"message"] = @"User canceled the Payment.";
+            flutterResult(map);
         }
         else if(result.paymentOptionType == BTUIKPaymentOptionTypeApplePay){
             [self setupPaymentRequest:^(PKPaymentRequest*  _Nullable paymentRequest, NSError*  _Nullable error) {
                 if (error) {
-                    flutterResult(@"error");
+                    map[@"status"] = @"fail";
+                    map[@"message"] = @"ApplePay error.";
+                    flutterResult(map);
                     return;
                 }
                 NSLog(@"***************************** Starting payment************");
@@ -97,7 +114,10 @@ FlutterResult _flutterResult;
             }];
         }
         else {
-            flutterResult(result.paymentMethod.nonce);
+            map[@"status"] = @"success";
+            map[@"message"] = @"Payment Nonce is ready.";
+            map[@"nonce"] = result.paymentMethod.nonce;
+            flutterResult(map);
         }
         [self.viewController dismissViewControllerAnimated:YES completion:nil];
     }];

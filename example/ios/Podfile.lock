@@ -37,7 +37,6 @@ PODS:
     - Braintree/UnionPay (~> 4.30)
     - BraintreeDropIn/UIKit
   - BraintreeDropIn/UIKit (7.5.0)
-
   - Flutter (1.0.0)
 
 DEPENDENCIES:
@@ -57,10 +56,10 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Braintree: 9fc21dc2ead57d104c4a0743454308e404217ec7
-  braintree_payment: d4a57a529b39a42c9b07b8e2d762ca9202309630
+  braintree_payment: 5a236f6db6e01e211bd977bfdd3305406af5cc68
   BraintreeDropIn: 15d6f53bf80bc0ae7809ab17803100c0a5448fd2
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
 
-PODFILE CHECKSUM: 3dbe063e9c90a5d7c9e4e76e70a821b9e2c1d271
+PODFILE CHECKSUM: 8e679eca47255a8ca8067c4c67aab20e64cb974d
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.1
