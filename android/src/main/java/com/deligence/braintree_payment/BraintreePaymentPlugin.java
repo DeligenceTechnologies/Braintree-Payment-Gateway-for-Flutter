@@ -30,7 +30,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     private static final int PAYPAL_REQUEST_CODE = 0x1338;
     String clientToken = "";
     String amount = "";
-    String currencyCode = "";
+    String currency = "";
     String googleMerchantId = "";
     boolean inSandbox;
     boolean useVault;
@@ -57,9 +57,9 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
             this.activeResult = result;
             this.clientToken = call.argument("clientToken");
             this.amount = call.argument("amount");
-            this.currencyCode = call.argument("currencyCode");
-            if (this.currencyCode == null)
-                currencyCode = "USD";
+            this.currency = call.argument("currency");
+            if (this.currency == null)
+                currency = "USD";
             this.useVault = call.argument("useVault");
             this.inSandbox = call.argument("inSandbox");
             this.googleMerchantId = call.argument("googleMerchantId");
@@ -83,7 +83,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
             enableGooglePay(dropInRequest);
         }
         if (!useVault) {
-            PayPalRequest paypalRequest = new PayPalRequest(amount).currencyCode(currencyCode);
+            PayPalRequest paypalRequest = new PayPalRequest(amount).currencyCode(currency);
             dropInRequest.paypalRequest(paypalRequest);
         }
         activity.startActivityForResult(dropInRequest.getIntent(context), REQUEST_CODE);
@@ -101,7 +101,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                     .transactionInfo(TransactionInfo.newBuilder()
                             .setTotalPrice(amount)
                             .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
-                            .setCurrencyCode(currencyCode)
+                            .setCurrencyCode(currency)
                             .build())
                     .billingAddressRequired(true);
             dropInRequest.googlePaymentRequest(googlePaymentRequest);
@@ -110,7 +110,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
                     .transactionInfo(TransactionInfo.newBuilder()
                             .setTotalPrice(amount)
                             .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
-                            .setCurrencyCode(currencyCode)
+                            .setCurrencyCode(currency)
                             .build())
                     .billingAddressRequired(true)
                     .googleMerchantId(googleMerchantId);

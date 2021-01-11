@@ -42,7 +42,7 @@ class _PayState extends State<Pay> {
         amount: "2.0",
         enableGooglePay: true,
         nameRequired: true,
-        currencyCode: "EUR",
+        currency: "EUR",
         useVault: false);
     print("Response of the payment $data");
   }

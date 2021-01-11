@@ -4,16 +4,17 @@ import 'package:flutter/services.dart';
 
 class BraintreePayment {
   static const MethodChannel _channel =
-  const MethodChannel('braintree_payment');
+      const MethodChannel('braintree_payment');
 
-  Future showDropIn({String nonce = "",
-    String amount = "",
-    bool enableGooglePay = true,
-    bool inSandbox = true,
-    bool useVault = true,
-    String currencyCode = "USD",
-    bool nameRequired = false,
-    String googleMerchantId = ""}) async {
+  Future showDropIn(
+      {String nonce = "",
+      String amount = "",
+      bool enableGooglePay = true,
+      bool inSandbox = true,
+      bool useVault = true,
+      String currency = "USD",
+      bool nameRequired = false,
+      String googleMerchantId = ""}) async {
     if (Platform.isAndroid) {
       var result;
       if (inSandbox == false && googleMerchantId.isEmpty) {
@@ -30,7 +31,7 @@ class BraintreePayment {
           'enableGooglePay': enableGooglePay,
           'inSandbox': inSandbox,
           'useVault': useVault,
-          'currencyCode': currencyCode,
+          'currency': currency,
           'nameRequired': nameRequired,
           'googleMerchantId': googleMerchantId
         });
@@ -39,7 +40,7 @@ class BraintreePayment {
           'clientToken': nonce,
           'amount': amount,
           'useVault': useVault,
-          'currencyCode': currencyCode,
+          'currency': currency,
           'inSandbox': inSandbox,
           'nameRequired': nameRequired,
           'enableGooglePay': enableGooglePay,
@@ -48,8 +49,7 @@ class BraintreePayment {
       }
       return result;
     } else {
-      String result = await _channel
-          .invokeMethod('showDropIn', {
+      String result = await _channel.invokeMethod('showDropIn', {
         'clientToken': nonce,
         'amount': amount,
         'nameRequired': nameRequired
@@ -65,7 +65,7 @@ class BraintreePayment {
       return result;
     } else {
       print("-----------------Inside IOS-------------------------");
-      Map  result = await _channel.invokeMethod('startPayPalFlow', {
+      Map result = await _channel.invokeMethod('startPayPalFlow', {
         'clientToken': nonce,
         'amount': amount,
         'currency': currency,
