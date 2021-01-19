@@ -52,6 +52,8 @@ class BraintreePayment {
       String result = await _channel.invokeMethod('showDropIn', {
         'clientToken': nonce,
         'amount': amount,
+        'useVault': useVault,
+        'currency': currency,
         'nameRequired': nameRequired
       });
       return result;

@@ -45,8 +45,8 @@ FlutterResult _flutterResult;
         clientToken = call.arguments[@"clientToken"];
         amount =call.arguments[@"amount"];
         currency = call.arguments[@"currency"];
-        useVault = call.arguments[@"useVault"];
-        nameRequired = call.arguments[@"nameRequired"];
+        useVault = [call.arguments[@"useVault"]boolValue] == YES;
+        nameRequired = [call.arguments[@"nameRequired"]boolValue] == YES;
         [self showDropIn:clientToken withResult:result];
     } else if ([@"startPayPalFlow" isEqualToString:call.method]) {
         _flutterResult = result;
