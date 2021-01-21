@@ -4,17 +4,17 @@ import 'package:flutter/services.dart';
 
 class BraintreePayment {
   static const MethodChannel _channel =
-      const MethodChannel('braintree_payment');
+  const MethodChannel('braintree_payment');
 
-  Future showDropIn(
-      {String nonce = "",
-      String amount = "",
-      bool enableGooglePay = true,
-      bool inSandbox = true,
-      bool useVault = true,
-      String currency = "USD",
-      bool nameRequired = false,
-      String googleMerchantId = ""}) async {
+  Future showDropIn({String nonce = "",
+    String amount = "",
+    bool enableGooglePay = true,
+    bool inSandbox = true,
+    bool useVault = true,
+    bool disableCard = false,
+    String currency = "USD",
+    bool nameRequired = false,
+    String googleMerchantId = ""}) async {
     var result;
     if (Platform.isAndroid) {
       if (inSandbox == false && googleMerchantId.isEmpty) {
@@ -31,6 +31,7 @@ class BraintreePayment {
           'enableGooglePay': enableGooglePay,
           'inSandbox': inSandbox,
           'useVault': useVault,
+          'disableCard': disableCard,
           'currency': currency,
           'nameRequired': nameRequired,
           'googleMerchantId': googleMerchantId
@@ -40,6 +41,7 @@ class BraintreePayment {
           'clientToken': nonce,
           'amount': amount,
           'useVault': useVault,
+          'disableCard': disableCard,
           'currency': currency,
           'inSandbox': inSandbox,
           'nameRequired': nameRequired,
@@ -53,6 +55,7 @@ class BraintreePayment {
         'clientToken': nonce,
         'amount': amount,
         'useVault': useVault,
+        'disableCard': disableCard,
         'currency': currency,
         'nameRequired': nameRequired
       });

@@ -34,6 +34,7 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     String googleMerchantId = "";
     boolean inSandbox;
     boolean useVault;
+    boolean disableCard;
     boolean enableGooglePay;
     HashMap<String, String> map = new HashMap<String, String>();
     String payPalFlow = ""; //either "Vault" or "Checkout"
@@ -61,12 +62,14 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
             if (this.currency == null)
                 currency = "USD";
             this.useVault = call.argument("useVault");
+            this.disableCard = call.argument("disableCard");
             this.inSandbox = call.argument("inSandbox");
             this.googleMerchantId = call.argument("googleMerchantId");
             this.enableGooglePay = call.argument("enableGooglePay");
             payNow();
         } else if (call.method.equals("startPayPalFlow")) {
             this.activeResult = result;
+            this.disableCard = call.argument("disableCard");
             this.clientToken = call.argument("clientToken");
             this.amount = call.argument("amount");
             this.payPalFlow = call.argument("payPalFlow");
@@ -81,6 +84,9 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
         if (enableGooglePay) {
 
             enableGooglePay(dropInRequest);
+        }
+        if (disableCard) {
+            dropInRequest.disableCard();
         }
         if (!useVault) {
             PayPalRequest paypalRequest = new PayPalRequest(amount).currencyCode(currency);
