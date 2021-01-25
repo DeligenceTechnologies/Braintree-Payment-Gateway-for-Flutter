@@ -11,6 +11,8 @@ class BraintreePayment {
     bool enableGooglePay = true,
     bool inSandbox = true,
     bool nameRequired = false,
+    bool collectDeviceData = false,
+    bool threeDs2 = false,
     String googleMerchantId = ""}) async {
     if (Platform.isAndroid) {
       var result;
@@ -28,6 +30,8 @@ class BraintreePayment {
           'enableGooglePay': enableGooglePay,
           'inSandbox': inSandbox,
           'nameRequired': nameRequired,
+          'collectDeviceData': collectDeviceData,
+          'threeDs2': threeDs2,
           'googleMerchantId': googleMerchantId
         });
       } else if (inSandbox) {
@@ -37,6 +41,8 @@ class BraintreePayment {
           'inSandbox': inSandbox,
           'nameRequired': nameRequired,
           'enableGooglePay': enableGooglePay,
+          'collectDeviceData': collectDeviceData,
+          'threeDs2': threeDs2,
           'googleMerchantId': googleMerchantId
         });
       }
@@ -46,6 +52,8 @@ class BraintreePayment {
           .invokeMethod('showDropIn', {
         'clientToken': nonce,
         'amount': amount,
+        'threeDs2': threeDs2,
+        'collectDeviceData': collectDeviceData,
         'nameRequired': nameRequired
       });
       return result;

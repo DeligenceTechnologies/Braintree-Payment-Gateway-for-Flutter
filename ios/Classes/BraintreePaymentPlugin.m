@@ -5,15 +5,23 @@
 #import "BraintreeApplePay.h"
 #import "BraintreePayPal.h"
 #import "PayPalFlowViewController.h"
+#import "BTDataCollector.h"
+#import "PPDataCollector.h"
+#import "BTThreeDSecureRequest.h"
 
 NSString *clientToken;
 NSString *amount;
 NSString *currency;
 BTAPIClient *braintreeClient;
+BOOL collectDeviceData;
+BOOL nameRequired;
+BOOL threeDs2;
 FlutterResult _flutterResult;
 
-@interface BraintreePaymentPlugin () <PayPalFlowDelegate>
+
+@interface BraintreePaymentPlugin () <PayPalFlowDelegate, BTDataCollectorDelegate>
 @property (nonatomic, strong) UIViewController *viewController;
+@property (nonatomic, strong) BTDataCollector *dataCollector;
 @end
 
 @implementation BraintreePaymentPlugin
@@ -43,12 +51,15 @@ FlutterResult _flutterResult;
         clientToken = call.arguments[@"clientToken"];
         amount =call.arguments[@"amount"];
         nameRequired = call.arguments[@"nameRequired"];
+        collectDeviceData = call.arguments[@"collectDeviceData"];
+        threeDs2 = call.arguments[@"threeDs2"];
         [self showDropIn:clientToken withResult:result];
     } else if ([@"startPayPalFlow" isEqualToString:call.method]) {
         _flutterResult = result;
         clientToken = call.arguments[@"clientToken"];
         amount =call.arguments[@"amount"];
         currency = call.arguments[@"currency"];
+        collectDeviceData = call.arguments[@"collectDeviceData"];
         [self showPayPalFlow:clientToken];
     }
     else {
@@ -74,8 +85,19 @@ FlutterResult _flutterResult;
     BTDropInRequest *request = [[BTDropInRequest alloc] init];
     if(nameRequired)
         request.cardholderNameSetting = BTFormFieldRequired;
-
-   BTDropInController *dropInController = [[BTDropInController alloc] initWithAuthorization:clientTokenOrTokenizationKey request:request handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
+    
+    request.threeDSecureVerification = threeDs2;
+    if(threeDs2){
+        BTThreeDSecureRequest *threeDSecureRequest = [[BTThreeDSecureRequest alloc] init];
+        threeDSecureRequest.amount = [NSDecimalNumber decimalNumberWithString:amount];
+        threeDSecureRequest.versionRequested = BTThreeDSecureVersion2;
+        request.threeDSecureRequest = threeDSecureRequest;
+    }
+    
+    braintreeClient = [[BTAPIClient alloc] initWithAuthorization:clientToken];
+    self.dataCollector = [[BTDataCollector alloc] initWithAPIClient:braintreeClient];
+    self.dataCollector.delegate = self;
+    BTDropInController *dropInController = [[BTDropInController alloc] initWithAuthorization:clientTokenOrTokenizationKey request:request handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
         
         if (error != nil) {
             flutterResult(@"error");
@@ -97,7 +119,7 @@ FlutterResult _flutterResult;
             }];
         }
         else {
-            flutterResult(result.paymentMethod.nonce);
+            [self sendResult: result.paymentMethod.nonce];
         }
         [self.viewController dismissViewControllerAnimated:YES completion:nil];
     }];
@@ -105,11 +127,31 @@ FlutterResult _flutterResult;
     [_viewController presentViewController: dropInController animated:YES completion:nil];
 }
 
+- (void)sendResult:(NSString*) nonce {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc]init];
+    if(collectDeviceData){
+        [self.dataCollector collectDeviceData:^(NSString * _Nonnull deviceData) {
+            [dict setValue:nonce forKey:@"nonce"];
+            [dict setValue:deviceData forKey:@"deviceData"];
+            NSError * err;
+            NSData * jsonData = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&err];
+            NSString * result = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            _flutterResult(result);
+        }];
+    } else {
+        [dict setValue:nonce forKey:@"nonce"];
+        [dict setValue:@"" forKey:@"deviceData"];
+        NSError * err;
+        NSData * jsonData = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&err];
+        NSString * result = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        _flutterResult(result);
+    }
+    
+}
+
 - (void)paymentAuthorizationViewController:(PKPaymentAuthorizationViewController* )controller didAuthorizePayment:(PKPayment* )payment completion:(void (^)(PKPaymentAuthorizationStatus))completion {
     NSLog(@"*****************************something  went wrong  Nonce***********");
-    BTAPIClient *braintreeClient;
     NSLog(@"*****************************Started main executionße************");
-    braintreeClient = [[BTAPIClient alloc] initWithAuthorization:clientToken];
     
     BTApplePayClient *applePayClient = [[BTApplePayClient alloc] initWithAPIClient:braintreeClient];
     
@@ -119,7 +161,8 @@ FlutterResult _flutterResult;
             // On success, send nonce to your server for processing.
             NSLog(@"*****************************Apple payment Nonce************");
             NSLog(@"nonce = %@", tokenizedApplePayPayment.nonce);
-            _flutterResult(tokenizedApplePayPayment.nonce);
+            //            _flutterResult(tokenizedApplePayPayment.nonce);
+            [self sendResult: tokenizedApplePayPayment.nonce];
             //                                         [self postNonceToServer:tokenizedApplePayPayment.nonce];
             NSLog(@"billingPostalCode = %@", payment.billingContact.postalAddress.postalCode);
             // Then indicate success or failure via the completion callback, e.g.
@@ -137,10 +180,6 @@ FlutterResult _flutterResult;
 }
 
 - (void)setupPaymentRequest:(void (^)(PKPaymentRequest*  _Nullable, NSError*  _Nullable))completion {
-    
-    BTAPIClient *braintreeClient;
-    
-    braintreeClient = [[BTAPIClient alloc] initWithAuthorization:clientToken];
     
     BTApplePayClient *applePayClient = [[BTApplePayClient alloc]
                                         
@@ -167,8 +206,8 @@ FlutterResult _flutterResult;
         paymentRequest.paymentSummaryItems =
         
         @[
-          [PKPaymentSummaryItem summaryItemWithLabel:@"Collective Giving" amount:[NSDecimalNumber decimalNumberWithString:amount]],
-          ];
+            [PKPaymentSummaryItem summaryItemWithLabel:@"Collective Giving" amount:[NSDecimalNumber decimalNumberWithString:amount]],
+        ];
         // Save the PKPaymentRequest or start the payment flow
         completion(paymentRequest, nil);
     }];
@@ -179,7 +218,27 @@ FlutterResult _flutterResult;
 }
 
 - (void)resultDataFromPayPalFlow:(NSMutableDictionary *)data {
-    _flutterResult(data);
+    [self sendResult: data];
+}
+
+#pragma mark - BTDataCollectorDelegate
+
+/// The collector has started.
+- (void)dataCollectorDidStart:(__unused BTDataCollector *)dataCollector {
+    NSLog(@"Data collector did start...");
+}
+
+/// The collector finished successfully.
+- (void)dataCollectorDidComplete:(__unused BTDataCollector *)dataCollector {
+    NSLog(@"Data collector did complete.");
+}
+
+/// An error occurred.
+///
+/// @param error Triggering error
+- (void)dataCollector:(__unused BTDataCollector *)dataCollector didFailWithError:(NSError *)error {
+    _flutterResult(@"error");
+    NSLog(@"Error collecting data. error = %@", error);
 }
 
 @end
