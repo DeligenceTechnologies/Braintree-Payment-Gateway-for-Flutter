@@ -18,8 +18,8 @@ A new flutter plugin project.
   s.dependency 'BraintreeDropIn'
   s.dependency 'Braintree/PayPal'
   s.dependency 'Braintree/Apple-Pay'
+  s.ios.deployment_target = '11.0'
   s.dependency 'Braintree/DataCollector'
-  s.ios.deployment_target = '10.0'
   s.static_framework = true
 end
 

@@ -11,11 +11,14 @@
 
 NSString *clientToken;
 NSString *amount;
+BOOL nameRequired;
 NSString *currency;
+BOOL useVault;
 BTAPIClient *braintreeClient;
 BOOL collectDeviceData;
 BOOL nameRequired;
 BOOL threeDs2;
+BOOL disableCard;
 FlutterResult _flutterResult;
 
 
@@ -50,9 +53,12 @@ FlutterResult _flutterResult;
         _flutterResult = result;
         clientToken = call.arguments[@"clientToken"];
         amount =call.arguments[@"amount"];
-        nameRequired = call.arguments[@"nameRequired"];
+        currency = call.arguments[@"currency"];
+        useVault = [call.arguments[@"useVault"]boolValue] == YES;
+        nameRequired = [call.arguments[@"nameRequired"]boolValue] == YES;
         collectDeviceData = call.arguments[@"collectDeviceData"];
         threeDs2 = call.arguments[@"threeDs2"];
+        disableCard = [call.arguments[@"disableCard"]boolValue] == YES;
         [self showDropIn:clientToken withResult:result];
     } else if ([@"startPayPalFlow" isEqualToString:call.method]) {
         _flutterResult = result;
@@ -85,7 +91,14 @@ FlutterResult _flutterResult;
     BTDropInRequest *request = [[BTDropInRequest alloc] init];
     if(nameRequired)
         request.cardholderNameSetting = BTFormFieldRequired;
-    
+    if(!useVault) {
+        BTPayPalRequest *payPalRequest = [[BTPayPalRequest alloc] initWithAmount:amount];
+        payPalRequest.currencyCode = currency;
+        request.payPalRequest = payPalRequest;
+    }
+    if(disableCard){
+        request.cardDisabled = disableCard;
+    }
     request.threeDSecureVerification = threeDs2;
     if(threeDs2){
         BTThreeDSecureRequest *threeDSecureRequest = [[BTThreeDSecureRequest alloc] init];
@@ -97,17 +110,26 @@ FlutterResult _flutterResult;
     braintreeClient = [[BTAPIClient alloc] initWithAuthorization:clientToken];
     self.dataCollector = [[BTDataCollector alloc] initWithAPIClient:braintreeClient];
     self.dataCollector.delegate = self;
+
     BTDropInController *dropInController = [[BTDropInController alloc] initWithAuthorization:clientTokenOrTokenizationKey request:request handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
-        
+    
+       NSMutableDictionary * map = [[NSMutableDictionary alloc] init];
+    
         if (error != nil) {
-            flutterResult(@"error");
+            map[@"status"] = @"fail";
+            map[@"message"] = @"Payment Nonce is Empty.";
+            flutterResult(map);
         } else if (result.cancelled) {
-            flutterResult(@"cancelled");
+            map[@"status"] = @"fail";
+            map[@"message"] = @"User canceled the Payment.";
+            flutterResult(map);
         }
         else if(result.paymentOptionType == BTUIKPaymentOptionTypeApplePay){
             [self setupPaymentRequest:^(PKPaymentRequest*  _Nullable paymentRequest, NSError*  _Nullable error) {
                 if (error) {
-                    flutterResult(@"error");
+                    map[@"status"] = @"fail";
+                    map[@"message"] = @"ApplePay error.";
+                    flutterResult(map);
                     return;
                 }
                 NSLog(@"***************************** Starting payment************");
@@ -119,6 +141,10 @@ FlutterResult _flutterResult;
             }];
         }
         else {
+            map[@"status"] = @"success";
+            map[@"message"] = @"Payment Nonce is ready.";
+            map[@"nonce"] = result.paymentMethod.nonce;
+            flutterResult(map);
             [self sendResult: result.paymentMethod.nonce];
         }
         [self.viewController dismissViewControllerAnimated:YES completion:nil];
@@ -130,7 +156,7 @@ FlutterResult _flutterResult;
 - (void)sendResult:(NSString*) nonce {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc]init];
     if(collectDeviceData){
-        [self.dataCollector collectDeviceData:^(NSString * _Nonnull deviceData) {
+        [self.dataCollector collectFraudData:^(NSString * _Nonnull deviceData) {
             [dict setValue:nonce forKey:@"nonce"];
             [dict setValue:deviceData forKey:@"deviceData"];
             NSError * err;

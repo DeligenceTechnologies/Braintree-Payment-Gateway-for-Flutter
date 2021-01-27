@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:braintree_payment/braintree_payment.dart';
+import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
 
@@ -27,7 +27,26 @@ class _PayState extends State<Pay> {
   payNow() async {
     BraintreePayment braintreePayment = new BraintreePayment();
     var data = await braintreePayment.showDropIn(
-        nonce: clientNonce, amount: "2.0", enableGooglePay: true, nameRequired:true);
+        nonce: clientNonce,
+        amount: "2.0",
+        enableGooglePay: true,
+        currency: "USD",
+        nameRequired: true,
+        useVault: true);
+    print("Response of the payment $data");
+  }
+
+  //disable vault for one time payments
+  payWithoutVaultNow() async {
+    BraintreePayment braintreePayment = new BraintreePayment();
+    var data = await braintreePayment.showDropIn(
+        nonce: clientNonce,
+        amount: "2.0",
+        enableGooglePay: true,
+        nameRequired: true,
+        inSandbox: true,
+        currency: "EUR",
+        useVault: false);
     print("Response of the payment $data");
   }
 
@@ -45,24 +64,39 @@ class _PayState extends State<Pay> {
         title: Text("Pay Now"),
       ),
       body: Center(
-        child: Column(
-          children: <Widget>[
-            FlatButton(
-              onPressed: payNow,
-              color: Colors.teal,
-              child: Text(
-                "Pay Now (Drop In)",
-                style: TextStyle(color: Colors.white),
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              FlatButton(
+                onPressed: payNow,
+                color: Colors.teal,
+                child: Text(
+                  "Pay Now (Drop In)",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
-            ),FlatButton(
-              onPressed: payPalFlow,
-              color: Colors.teal,
-              child: Text(
-                "Pay with paypal",
-                style: TextStyle(color: Colors.white),
+              FlatButton(
+                onPressed: payWithoutVaultNow,
+                color: Colors.teal,
+                child: Text(
+                  "Pay Now without vault (Drop In)",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
-            ),
-          ],
+              Divider(
+                height: 16,
+                thickness: 4,
+              ),
+              FlatButton(
+                onPressed: payPalFlow,
+                color: Colors.teal,
+                child: Text(
+                  "Pay with paypal",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
