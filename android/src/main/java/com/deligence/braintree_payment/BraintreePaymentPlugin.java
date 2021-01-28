@@ -9,9 +9,8 @@ import com.braintreepayments.api.dropin.DropInActivity;
 import com.braintreepayments.api.dropin.DropInRequest;
 import com.braintreepayments.api.dropin.DropInResult;
 import com.braintreepayments.api.models.GooglePaymentRequest;
+import com.braintreepayments.api.models.PayPalRequest;
 import com.braintreepayments.api.models.ThreeDSecureRequest;
-import com.braintreepayments.cardform.view.CardForm;
-
 import com.google.android.gms.wallet.TransactionInfo;
 import com.google.android.gms.wallet.WalletConstants;
 
@@ -32,13 +31,14 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     private static final int PAYPAL_REQUEST_CODE = 0x1338;
     String clientToken = "";
     String amount = "";
+    String currency = "";
     String googleMerchantId = "";
     boolean inSandbox;
+    boolean useVault;
+    boolean disableCard;
     boolean enableGooglePay;
     boolean threeDs2;
     boolean collectDeviceData;
-    HashMap<String, String> map = new HashMap<String, String>();
-    String payPalFlow = ""; //either "Vault" or "Checkout"
     BraintreeFragment mBraintreeFragment;
 
 
@@ -59,6 +59,11 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
             this.activeResult = result;
             this.clientToken = call.argument("clientToken");
             this.amount = call.argument("amount");
+            this.currency = call.argument("currency");
+            if (this.currency == null)
+                currency = "USD";
+            this.useVault = call.argument("useVault");
+            this.disableCard = call.argument("disableCard");
             this.inSandbox = call.argument("inSandbox");
             this.googleMerchantId = call.argument("googleMerchantId");
             this.enableGooglePay = call.argument("enableGooglePay");
@@ -68,8 +73,8 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
         } else if (call.method.equals("startPayPalFlow")) {
             this.activeResult = result;
             this.clientToken = call.argument("clientToken");
+            this.currency = call.argument("currency");
             this.amount = call.argument("amount");
-            this.payPalFlow = call.argument("payPalFlow");
             startPayPalFlow();
         } else {
             result.notImplemented();
@@ -79,12 +84,19 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
     void payNow() {
         DropInRequest dropInRequest = new DropInRequest().clientToken(clientToken);
         if (enableGooglePay) {
-            enableGooglePay(dropInRequest);
+            enableGooglePayPayment(dropInRequest);
         }
-        if(collectDeviceData){
+        if (disableCard) {
+            dropInRequest.disableCard();
+        }
+        if (!useVault) {
+            PayPalRequest paypalRequest = new PayPalRequest(amount).currencyCode(currency);
+            dropInRequest.paypalRequest(paypalRequest);
+        }
+        if (collectDeviceData) {
             dropInRequest.collectDeviceData(true);
         }
-        if(threeDs2){
+        if (threeDs2) {
             ThreeDSecureRequest threeDSecureRequest = new ThreeDSecureRequest()
                     .amount(amount)
                     .versionRequested(ThreeDSecureRequest.VERSION_2);
@@ -94,39 +106,42 @@ public class BraintreePaymentPlugin implements MethodCallHandler, ActivityResult
         activity.startActivityForResult(dropInRequest.getIntent(context), REQUEST_CODE);
     }
 
+
     void startPayPalFlow() {
         Intent p = new Intent(this.context, PayPalFlowActivity.class);
         p.putExtra("clientToken", clientToken);
         p.putExtra("amount", amount);
+        p.putExtra("currency", currency);
+        activity.startActivityForResult(p, PAYPAL_REQUEST_CODE);
     }
 
-    private void enableGooglePay(DropInRequest dropInRequest) {
+    private void enableGooglePayPayment(DropInRequest dropInRequest) {
+        GooglePaymentRequest googlePaymentRequest;
         if (inSandbox) {
-            GooglePaymentRequest googlePaymentRequest = new GooglePaymentRequest()
+            googlePaymentRequest = new GooglePaymentRequest()
                     .transactionInfo(TransactionInfo.newBuilder()
                             .setTotalPrice(amount)
                             .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
-                            .setCurrencyCode("USD")
+                            .setCurrencyCode(currency)
                             .build())
                     .billingAddressRequired(true);
-            dropInRequest.googlePaymentRequest(googlePaymentRequest);
         } else {
-            GooglePaymentRequest googlePaymentRequest = new GooglePaymentRequest()
+            googlePaymentRequest = new GooglePaymentRequest()
                     .transactionInfo(TransactionInfo.newBuilder()
                             .setTotalPrice(amount)
                             .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
-                            .setCurrencyCode("USD")
+                            .setCurrencyCode(currency)
                             .build())
                     .billingAddressRequired(true)
                     .googleMerchantId(googleMerchantId);
-            dropInRequest.googlePaymentRequest(googlePaymentRequest);
         }
+        dropInRequest.googlePaymentRequest(googlePaymentRequest);
     }
 
     @Override
-//     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-    public boolean onActivityResult(int requestCode, int resultCode, Intent data)  {
-      if(activeResult == null) return false;
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (activeResult == null) return false;
+        HashMap<String, String> map = new HashMap<String, String>();
         switch (requestCode) {
             case REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
